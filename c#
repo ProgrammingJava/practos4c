@@ -1,0 +1,114 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.Metrics;
+
+class DailyPlanner
+{
+    private List<Note> notes = new List<Note>();
+    private int currentDateIndex = 0;
+
+    public DailyPlanner()
+    {
+        notes.Add(new Note("Философия", "Выучить лекцию про стоицизм", new DateTime(2023, 10, 20)));
+        notes.Add(new Note("какие пары на завтра", "КС, БЖ, Философия, БД", new DateTime(2023, 10, 19)));
+        notes.Add(new Note("Куда надо сходить в выходные", "Парк Горьково", new DateTime(2023, 10, 22)));
+        notes.Add(new Note("Где убраться дома", "кухня, моя комната, гостинная", new DateTime(2023, 10, 18)));
+        notes.Add(new Note("Когда погулять с собакой", "гуляять с собакой не надо, потому что мы находимся в частном секторе, она сама побегает по участку", DateTime.Today));
+    }
+
+    public void Run()
+    {
+        Console.WriteLine("Ежедневник");
+
+        while (true)
+        {
+            Console.Clear();
+            DisplayMenu();
+            var key = Console.ReadKey(true).Key;
+
+            switch (key)
+            {
+                case ConsoleKey.UpArrow:
+                    MoveToPreviousDate();
+                    break;
+                case ConsoleKey.DownArrow:
+                    MoveToNextDate();
+                    break;
+                case ConsoleKey.Enter:
+                    DisplayNoteDetails();
+                    break;
+                case ConsoleKey.Escape:
+                    return;
+            }
+        }
+    }
+
+    private void DisplayMenu()
+    {
+        Console.WriteLine($"Дата: {notes[currentDateIndex].Date:d}");
+        Console.WriteLine("нажмите вверхную стрелочку или нижнию для перемещения, Enter для просмотра деталей, Esc для выхода.");
+        Console.WriteLine();
+
+        for (int i = 0; i < notes.Count; i++)
+        {
+            if (i == currentDateIndex)
+            {
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Black;
+                Console.BackgroundColor = ConsoleColor.White;
+            }
+
+            Console.WriteLine($"- {notes[i].Title}");
+        }
+
+        Console.ResetColor();
+    }
+
+    private void MoveToNextDate()
+    {
+        currentDateIndex = Math.Min(currentDateIndex + 1, notes.Count - 1);
+    }
+
+    private void MoveToPreviousDate()
+    {
+        currentDateIndex = Math.Max(currentDateIndex - 1, 0);
+    }
+
+    private void DisplayNoteDetails()
+    {
+        Console.Clear();
+        var note = notes[currentDateIndex];
+        Console.WriteLine($"Заголовок: {note.Title}");
+        Console.WriteLine($"Описание: {note.Description}");
+        Console.WriteLine($"Дата: {note.Date:d}");
+        Console.WriteLine("Нажмите любую клавишу для возврата.");
+        Console.ReadKey();
+    }
+
+    class Note
+    {
+        public string Title { get; }
+        public string Description { get; }
+        public DateTime Date { get; }
+
+        public Note(string title, string description, DateTime date)
+        {
+            Title = title;
+            Description = description;
+            Date = date;
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var planner = new DailyPlanner();
+        planner.Run();
+    }
+}
